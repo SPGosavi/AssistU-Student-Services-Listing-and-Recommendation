@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Display a map on a webpage</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css" />
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 50%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiZGVsdGEtc3R1ZHVlbnQiLCJhIjoiY2xvMDk0MTVhMTJ3ZDJrcGR5ZDFkaHl4ciJ9.Gj2VU1wvxc7rFVt5E4KLOQ';
+const map = new mapboxgl.Map({
+    container: 'map', // container ID
+    center: [73.8211, 18.6242], 
+    zoom: 14,
+    style: 'mapbox://styles/mapbox/streets-v11'
+});
+const popup = new mapboxgl.Popup({ offset: [0, -10] })
+    .setHTML('<div><h3>Dr. D.Y. Patil Medical College</h3><img src="newMedical.jpeg" alt="Medical College" style= "width=100%; height=auto"></div>');
+
+    const marker=new mapboxgl.Marker({
+        color:'#FF0000',
+        scale:0.7
+        
+    })
+
+    .setLngLat([73.8211,18.6242])
+    .setPopup(popup)
+    .addTo(map);
+
+    const popup1 = new mapboxgl.Popup({ offset: [0, -10] })
+    .setHTML('<div><h3>Dr. D.Y. Patil Medical College</h3><img src="dy.jpeg" alt="Medical College" style= "width=100%; height=auto"></div>');
+
+    const marker2=new mapboxgl.Marker({
+        color:'#FF0000',
+        scale:0.7
+        
+    })
+
+    .setLngLat([73.81599,18.62333])
+    .setPopup(popup1)
+    .addTo(map);
+// Array of mess locations
+const messLocations = [
+    { name: 'Mess 1', address: 'pimpri,pune' },
+    { name: 'Mess 2', address: 'sant Tukaram nagar,pimpri,pune' },
+    { name: 'Mess 3', address: 'keshav nagar,kasarwadi,pune' },
+];
+
+// Function to create a custom marker for a mess
+function createMessMarker(location) {
+    const popup = new mapboxgl.Popup({ offset: [0, -10] })
+        .setHTML(`<div><h3>${location.name}</h3><p>${location.address}</p></div>`);
+
+    // const marker = new mapboxgl.Marker({ color: '#FF0000', scale: 0.7 })
+    const messMarkerHTML = '<img src="download.png" style="width: 25px; height: 25px;">';
+
+const messMarkerElement = document.createElement('div');
+messMarkerElement.innerHTML = messMarkerHTML;
+const messMarker = new mapboxgl.Marker(messMarkerElement)
+        .setLngLat([0, 0]) // Placeholder coordinates, will be updated
+        .setPopup(popup)
+        .addTo(map);
+
+    // Mapbox Geocoding API to get the coordinates of the mess location
+    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location.address)}.json?access_token=${mapboxgl.accessToken}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.features.length > 0) {
+                const coordinates = data.features[0].center;
+                messMarker.setLngLat(coordinates);
+                console.log(coordinates);
+            } else {
+                console.error('No coordinates found for address:', location.address);
+            }
+        })
+        .catch(error => console.error('Error fetching geocoding data:', error));
+}
+
+
+// Iterate over the messLocations array and create a marker for each location
+messLocations.forEach(location => {
+    createMessMarker(location);
+});
+</script>
+</body>
+</html>

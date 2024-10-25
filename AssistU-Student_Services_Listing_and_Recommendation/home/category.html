@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category List</title>
+    <link rel="stylesheet" href="category.css">
+
+</head>
+<body>
+    <h1>List of <?php echo ucfirst($_GET['category']);?></h1>
+    <div class="list-container">
+        <?php
+        $host = "localhost";
+        $username = "root";
+        $password = "";
+        $database = "navigate_db";
+
+        $conn = new mysqli($host, $username, $password, $database);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        $category = $_GET['category'];
+
+        $sql = "SELECT * FROM list_table WHERE type='$category'";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                echo "<div class='item'>";
+                echo "<img src='".trim($row["img"])."' alt='Image' width='200px' height='200px'>";
+                echo "<div class='info'>";
+                echo "<h2>" . $row["title"] . "</h2>";
+                echo "<p>Price: $" . $row["price"] . "</p>";
+                echo "<p>Location: " . $row["location"] . "</p>";
+                echo "</div>";
+                echo "</div>";
+            }
+        } else {
+            echo "No items found.";
+        }
+        $conn->close();
+        ?>
+    </div>
+</body>
+</html>
